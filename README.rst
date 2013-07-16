@@ -37,7 +37,9 @@ db_separator
     Used to separate tags in DB. Default ``'|'``.
 
 form_separator
-    Used to separate tags in form's input and split after submit. Default ``', '``.
+    Used to separate tags in form's input. Default ``', '``.
+    
+**Note:** after form submit tags input is splitted by pattern ``[\s*,\s*]``.
 
 
 Description
