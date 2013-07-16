@@ -15,14 +15,14 @@ class TagField(with_metaclass(models.SubfieldBase, models.CharField)):
     description = 'Tag (string) array field'
 
     def __init__(self, *args, **kwargs):
-        self.separator = kwargs.pop('separator', '|')
+        self.db_separator = kwargs.pop('db_separator', '|')
         kwargs['max_length'] = kwargs.get('max_length', 255)
         kwargs['blank'] = kwargs.get('blank', True)
         super(TagField, self).__init__(*args, **kwargs)
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared:
-            value = self.separator.join(value)
+            value = self.db_separator.join(value)
         return value
 
     def to_python(self, value):
@@ -34,8 +34,8 @@ class TagField(with_metaclass(models.SubfieldBase, models.CharField)):
             return value
 
         value = super(TagField, self).to_python(value)
-        if self.separator in value:
-            value = split_tags(value, self.separator, False)
+        if self.db_separator in value:
+            value = split_tags(value, self.db_separator, False)
         else:
             value = split_tags(value)
         return value
