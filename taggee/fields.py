@@ -44,5 +44,5 @@ class TagField(with_metaclass(models.SubfieldBase, models.CharField)):
     def value_from_object(self, obj):
         value = getattr(obj, self.attname)
         if isinstance(value, (list, tuple)):
-            value = ', '.join(value)
+            value = self.form_separator.join(value)
         return value

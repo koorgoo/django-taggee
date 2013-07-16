@@ -2,7 +2,7 @@ from django.db import models
 from django import forms
 from django.test import SimpleTestCase
 from taggee.fields import split_tags, TagField
-from .models import TagModel
+from .models import TagModel, TagModel2
 
 
 class SplitTagsTestCase(SimpleTestCase):
@@ -28,6 +28,7 @@ class SplitTagsTestCase(SimpleTestCase):
         expected = ['tag1', 'tag2']
         actual = split_tags('tag1|tag2', '|', is_re=False)
         self.assertEqual(expected, actual)
+
 
 ###
 ## Field/Model tests.
@@ -88,6 +89,7 @@ class TagFieldTestCase(SimpleTestCase):
 
         self.assertEqual(tags, TagModel.objects.get(pk=1).tags)
 
+
 ###
 ## Form tests.
 ###
@@ -95,6 +97,11 @@ class TagFieldTestCase(SimpleTestCase):
 class TagForm(forms.ModelForm):
     class Meta:
         model = TagModel
+
+
+class TagForm2(forms.ModelForm):
+    class Meta:
+        model = TagModel2
 
 
 class TagFromTestCase(SimpleTestCase):
@@ -107,6 +114,13 @@ class TagFromTestCase(SimpleTestCase):
         form = TagForm(instance=model)
         form_tags = form.initial['tags']
         self.assertEqual('tag1, tag2', form_tags)
+
+    def test_form_field_is_set_from_instance_with_custom_separator(self):
+        model = TagModel2(tags='tag1, tag2')
+        model.save()
+        form = TagForm2(instance=model)
+        form_tags = form.initial['tags']
+        self.assertEqual('tag1 | tag2', form_tags)
 
     def test_model_field_is_set_from_form(self):
         form = TagForm({'tags': 'tag1, tag2'})
