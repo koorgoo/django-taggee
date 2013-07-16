@@ -45,6 +45,13 @@ class TagFieldTestCase(SimpleTestCase):
         tags = TagField(db_separator=',')
         self.assertEqual(',', tags.db_separator)
 
+    def test_default_form_separator(self):
+        self.assertEqual(', ', self.tags.form_separator)
+
+    def test_form_separator_parameter(self):
+        tags = TagField(form_separator='; ')
+        self.assertEqual('; ', tags.form_separator)
+
     def test_default_max_length(self):
         self.assertEqual(255, self.tags.max_length)
 

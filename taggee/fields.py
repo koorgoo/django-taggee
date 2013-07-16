@@ -16,6 +16,7 @@ class TagField(with_metaclass(models.SubfieldBase, models.CharField)):
 
     def __init__(self, *args, **kwargs):
         self.db_separator = kwargs.pop('db_separator', '|')
+        self.form_separator = kwargs.pop('form_separator', ', ')
         kwargs['max_length'] = kwargs.get('max_length', 255)
         kwargs['blank'] = kwargs.get('blank', True)
         super(TagField, self).__init__(*args, **kwargs)
