@@ -1,6 +1,6 @@
 from django.db import models
 from django import forms
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TransactionTestCase
 from taggee.fields import split_tags, TagField
 from .models import TagModel, TagModel2
 
@@ -31,7 +31,7 @@ class SplitTagsTestCase(SimpleTestCase):
 
 
 ###
-## Field/Model tests.
+## Field tests.
 ###
 
 class TagFieldTestCase(SimpleTestCase):
@@ -82,12 +82,55 @@ class TagFieldTestCase(SimpleTestCase):
         prepared = self.tags.get_db_prep_value(self.model.tags, None, False)
         self.assertEqual('tag1|tag2', prepared)
 
-    def test_db_value_transformed_to_array(self):
-        tags = ['tag1', 'tag2']
-        self.model.tags = tags
-        self.model.save()
 
-        self.assertEqual(tags, TagModel.objects.get(pk=1).tags)
+###
+## TagModel tests.
+###
+
+class TagModelTestCase(TransactionTestCase):
+    def setUp(self):
+        TagModel.objects.create(tags='tag1')
+        TagModel.objects.create(tags='tag2, tag3')
+        TagModel.objects.create(tags='tag1, tag2, tag3, tag4')
+
+    def test_tags_are_created_from_string(self):
+        model = TagModel.objects.create(tags='tag1, tag2')
+        self.assertEqual(['tag1','tag2'], model.tags)
+
+    def test_tags_are_created_from_list(self):
+        model = TagModel.objects.create(tags=['tag1','tag2'])
+        self.assertEqual(['tag1','tag2'], model.tags)
+
+    def test_db_value_transformed_to_list(self):
+        model = TagModel()
+        model.tags = ['tag1', 'tag2']
+        model.save()
+        self.assertEqual(['tag1', 'tag2'], TagModel.objects.get(pk=model.pk).tags)
+
+    def test_filter_equals_is_ok(self):
+        self.assertEqual(1, TagModel.objects.filter(tags='tag1').count())
+        self.assertEqual(1, TagModel.objects.filter(tags=['tag2','tag3']).count())
+        self.assertEqual(1, TagModel.objects.filter(tags='tag2|tag3').count())
+
+    def test_filter_exact_is_ok(self):
+        self.assertEqual(1, TagModel.objects.filter(tags__exact='tag1').count())
+        self.assertEqual(1, TagModel.objects.filter(tags__exact=['tag2','tag3']).count())
+        self.assertEqual(1, TagModel.objects.filter(tags__exact='tag2|tag3').count())
+
+    def test_filter_iexact_is_ok(self):
+        self.assertEqual(1, TagModel.objects.filter(tags__iexact='TAG1').count())
+        self.assertEqual(1, TagModel.objects.filter(tags__iexact=['TAG2','TAG3']).count())
+        self.assertEqual(1, TagModel.objects.filter(tags__iexact='TAG2|TAG3').count())
+
+    def test_filter_contains_is_ok(self):
+        self.assertEqual(2, TagModel.objects.filter(tags__contains='tag3').count())
+        self.assertEqual(1, TagModel.objects.filter(tags__contains=['tag3','tag4']).count())
+        self.assertEqual(1, TagModel.objects.filter(tags__contains='tag3|tag4').count())
+
+    def test_filter_icontains_is_ok(self):
+        self.assertEqual(2, TagModel.objects.filter(tags__icontains='TAG3').count())
+        self.assertEqual(1, TagModel.objects.filter(tags__icontains=['TAG3','TAG4']).count())
+        self.assertEqual(1, TagModel.objects.filter(tags__icontains='TAG3|TAG4').count())
 
 
 ###

@@ -21,10 +21,14 @@ class TagField(with_metaclass(models.SubfieldBase, models.CharField)):
         kwargs['blank'] = kwargs.get('blank', True)
         super(TagField, self).__init__(*args, **kwargs)
 
-    def get_db_prep_value(self, value, connection, prepared=False):
-        if not prepared:
+    def get_prep_value(self, value):
+        if isinstance(value, (list, tuple)):
             value = self.db_separator.join(value)
         return value
+
+    def get_prep_lookup(self, lookup_type, value):
+        value = self.get_prep_value(value)
+        return super(TagField, self).get_prep_lookup(lookup_type, value)
 
     def to_python(self, value):
         """ Due to subclassing from the SubfieldBase class
