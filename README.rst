@@ -30,14 +30,26 @@ Installation
 ::
 
 
+Options
+-------
+
+db_separator
+    Used to separate tags in DB. Default ``'|'``.
+
+form_separator
+    Used to separate tags in form's input. Default ``', '``.
+    
+**Note:** after form submit tags input is splitted by pattern ``[\s*,\s*]``.
+
+
 Description
 -----------
 
-| **TagField** uses :code:`django.forms.TextWidget` to change its value.
-| To add several tags you should type desired tags separated by comma.
-| For example, the ``orange, juicy`` input will set the **tags** field's value to ``['orange', 'juicy']``.
+| TagField uses :code:`django.forms.TextWidget` to change its value.
+| To add several tags you should type desired tags separated by ``form_separator``.
+| For example, the ``orange, juicy`` input will set model's tags attribute to ``['orange', 'juicy']``.
 
-| Now you can easily loop through models's **tags** to build appropriate HTML in templates.
+| Now you can easily loop through model's tags to build appropriate HTML in templates.
 
 ::
 
