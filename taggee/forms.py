@@ -1,5 +1,5 @@
 from django import forms
 
 
-class TagFormMixin(forms.Form):
+class TagFormMixin(object):
     tag_field = 'tags'
