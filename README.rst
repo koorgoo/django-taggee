@@ -3,6 +3,8 @@ django-taggee
 
 **django-taggee** is a Django package providing with a simple tag field implementation.
 
+.. image:: https://api.travis-ci.org/koorgoo/django-taggee.png
+
 Getting Started
 ---------------
 
