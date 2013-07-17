@@ -11,6 +11,12 @@ class TagForm(TagFormMixin, forms.Form):
     tags = forms.CharField()
 
 
-class TagModelForm(TagFormMixin, forms.Form):
+class EmptyTagModelForm(TagFormMixin, forms.ModelForm):
+    class Meta:
+        model = TagModel
+        fields = []
+
+
+class TagModelForm(TagFormMixin, forms.ModelForm):
     class Meta:
         model = TagModel
