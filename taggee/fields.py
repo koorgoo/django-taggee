@@ -1,24 +1,15 @@
 import re
 from django.db import models
-from django.utils.six import with_metaclass
-
-
-def split_tags(s, pattern='\s*,\s*', is_re=True):
-    if is_re:
-        tags = re.split(pattern, s)
-    else:
-        tags = s.split(pattern)
-    return [t.strip() for t in tags if t]
+from django.utils.translation import ugettext_lazy as _
 
 
 class TagField(models.CharField):
-    description = 'Tag (string) array field'
+    description = _('Tag string (up to %(max_length)s)')
 
     __metaclass__ = models.SubfieldBase
 
     def __init__(self, *args, **kwargs):
         self.separator = kwargs.pop('separator', '|')
-        self.form_separator = kwargs.pop('form_separator', ', ')
         kwargs['max_length'] = kwargs.get('max_length', 255)
         kwargs['blank'] = kwargs.get('blank', True)
         super(TagField, self).__init__(*args, **kwargs)
@@ -29,26 +20,9 @@ class TagField(models.CharField):
         return value
 
     def get_prep_lookup(self, lookup_type, value):
-        value = self.get_prep_value(value)
-        return super(TagField, self).get_prep_lookup(lookup_type, value)
+        return self.get_prep_value(value)
 
     def to_python(self, value):
-        """ Due to subclassing from the SubfieldBase class
-            the method is called every time
-            the instance of the field is assigned a value.
-        """
-        if isinstance(value, list):
-            return value
-
-        value = super(TagField, self).to_python(value)
-        if self.separator in value:
-            value = split_tags(value, self.separator, False)
-        else:
-            value = split_tags(value)
-        return value
-
-    def value_from_object(self, obj):
-        value = getattr(obj, self.attname)
-        if isinstance(value, list):
-            value = self.form_separator.join(value)
+        if not isinstance(value, list):
+            value = value.split(self.separator)
         return value
