@@ -11,19 +11,21 @@ def split_tags(s, pattern='\s*,\s*', is_re=True):
     return [t.strip() for t in tags if t]
 
 
-class TagField(with_metaclass(models.SubfieldBase, models.CharField)):
+class TagField(models.CharField):
     description = 'Tag (string) array field'
 
+    __metaclass__ = models.SubfieldBase
+
     def __init__(self, *args, **kwargs):
-        self.db_separator = kwargs.pop('db_separator', '|')
+        self.separator = kwargs.pop('separator', '|')
         self.form_separator = kwargs.pop('form_separator', ', ')
         kwargs['max_length'] = kwargs.get('max_length', 255)
         kwargs['blank'] = kwargs.get('blank', True)
         super(TagField, self).__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
-        if isinstance(value, (list, tuple)):
-            value = self.db_separator.join(value)
+        if isinstance(value, list):
+            value = self.separator.join(value)
         return value
 
     def get_prep_lookup(self, lookup_type, value):
@@ -35,18 +37,18 @@ class TagField(with_metaclass(models.SubfieldBase, models.CharField)):
             the method is called every time
             the instance of the field is assigned a value.
         """
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list):
             return value
 
         value = super(TagField, self).to_python(value)
-        if self.db_separator in value:
-            value = split_tags(value, self.db_separator, False)
+        if self.separator in value:
+            value = split_tags(value, self.separator, False)
         else:
             value = split_tags(value)
         return value
 
     def value_from_object(self, obj):
         value = getattr(obj, self.attname)
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list):
             value = self.form_separator.join(value)
         return value
