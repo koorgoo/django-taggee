@@ -1,5 +1,7 @@
+from django.forms import TextInput
 from django.test import TestCase
 from .forms import EmptyTagForm, TagForm, EmptyTagModelForm, TagModelForm
+from .models import TagModel
 
 
 class EmptyFormTestCase(TestCase):
@@ -88,3 +90,18 @@ class TagModelTestCase(TestCase):
         form = TagModelForm(data)
         self.assertTrue(form.is_valid())
         self.assertEqual(['tag1','tag2'], form.instance.tags)
+
+    def test_use_textinput_widget_for_tags(self):
+        form = TagModelForm()
+        tags_widget = form.fields['tags'].widget
+        self.assertTrue(isinstance(tags_widget, TextInput))
+
+    def test_use_space_to_join_one_word_tags_from_instance(self):
+        model = TagModel(tags=['tag1', 'tag2'])
+        form = TagModelForm(instance=model)
+        self.assertEqual('tag1 tag2', form.initial['tags'])
+
+    def test_use_comma_to_join_several_words_tags_from_instance(self):
+        model = TagModel(tags=['tag', 'complex tag'])
+        form = TagModelForm(instance=model)
+        self.assertEqual('tag, complex tag', form.initial['tags'])

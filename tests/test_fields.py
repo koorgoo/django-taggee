@@ -17,13 +17,6 @@ class TagFieldTestCase(SimpleTestCase):
         tags = TagField(separator=',')
         self.assertEqual(',', tags.separator)
 
-    def test_default_max_length(self):
-        self.assertEqual(255, self.tags.max_length)
-
-    def test_max_length_parameter(self):
-        tags = TagField(max_length=50)
-        self.assertEqual(50, tags.max_length)
-
     def test_default_blank(self):
         self.assertTrue(self.tags.blank)
 
