@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='django-taggee',
-    version='0.1',
+    version='0.2',
     description='Tag field for Django models',
     keywords='django, tag, field',
     author='Dima Kurguzov',
