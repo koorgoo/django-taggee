@@ -12,7 +12,7 @@ Installation
 ^^^^^^^^^^^^
 ::
 
-    pip install git+git://github.com/koorgoo/django-taggee.git#egg=django-taggee
+    pip install django-taggee
 ::
 
 
