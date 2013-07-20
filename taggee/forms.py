@@ -1,5 +1,3 @@
-import re
-
 
 class TagFormMixin(object):
     def __init__(self, *args, **kwargs):
